@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:jaxrs-client="http://cxf.apache.org/jaxrs-client"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+        http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+        http://cxf.apache.org/jaxrs-client http://cxf.apache.org/schemas/jaxrs-client.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd" 
+       xmlns:aop="http://www.springframework.org/schema/aop">
+
+    <!-- Load defaults from apache cxf -->
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <bean id="replaceIdInterceptor" class="ru.ilb.common.jaxrs.interceptors.ReplaceOutInterceptor">
+        <property name="mediaType" value="application/xml"/>
+        <property name="replacements">
+            <util:map>
+                <entry key="node" value="replacement"/>
+            </util:map>
+        </property>
+    </bean>    
+    <bean id="replaceIdInterceptor2" class="ru.ilb.common.jaxrs.interceptors.ReplaceOutInterceptor2">
+        <property name="mediaType" value="application/xml"/>
+        <property name="replacements">
+            <util:map>
+                <entry key="node" value="replacement2"/>
+            </util:map>
+        </property>
+    </bean>    
+    
+    <bean id="testResource" class="ru.ilb.cachedstreamtest.web.TestResourceImpl"/>
+    <jaxrs:server address="/">
+        <jaxrs:serviceBeans>
+            <ref bean="testResource"/>
+        </jaxrs:serviceBeans>
+        <jaxrs:providers>
+            <!-- working http://localhost:8080/cachedstreamtest/web/test?limit=100000  -->
+            <!--<ref bean="replaceIdInterceptor"/>-->
+        </jaxrs:providers>
+        <jaxrs:outInterceptors>
+            <!-- not working http://localhost:8080/cachedstreamtest/web/test?limit=100000 -->
+            <ref bean="replaceIdInterceptor2" />
+        </jaxrs:outInterceptors>        
+    </jaxrs:server>
+</beans>
